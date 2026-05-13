@@ -1,0 +1,206 @@
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:var(--color-text-primary);
+  --muted:var(--color-text-secondary);
+  --bg:var(--color-background-primary);
+  --bg2:var(--color-background-secondary);
+  --border:var(--color-border-tertiary);
+  --accent:#c8442a;
+  --accent-bg:rgba(200,68,42,.08);
+  --r:var(--border-radius-md);
+  --rl:var(--border-radius-lg);
+}
+body{font-family:var(--font-sans);color:var(--ink)}
+.app{max-width:640px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.topbar{
+  background:var(--color-text-primary);
+  color:var(--color-background-primary);
+  padding:.75rem 1.25rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border-radius:var(--rl);margin-bottom:1.5rem;
+}
+.logo{font-size:1.1rem;font-weight:500;letter-spacing:.01em}
+.logo em{color:#f87171;font-style:normal}
+.badge{font-size:.65rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;background:var(--accent);color:#fff;padding:3px 10px;border-radius:var(--r)}
+.compose{
+  background:var(--bg);border:0.5px solid var(--border);
+  border-top:3px solid var(--accent);border-radius:var(--rl);
+  padding:1.25rem 1.25rem 1rem;margin-bottom:1.5rem;
+}
+.compose-title{font-size:14px;font-weight:500;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.row2{display:grid;grid-template-columns:1fr 140px;gap:8px;margin-bottom:8px}
+label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+input,textarea{
+  width:100%;padding:.55rem .8rem;
+  background:var(--bg2);border:0.5px solid var(--border);
+  border-radius:var(--r);font-family:var(--font-sans);
+  font-size:.9rem;color:var(--ink);outline:none;resize:none;
+  transition:border-color .15s;
+}
+input:focus,textarea:focus{border-color:var(--accent)}
+textarea{min-height:80px;margin-bottom:8px}
+.submit-row{display:flex;justify-content:flex-end}
+.btn-post{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:.5rem 1.2rem;
+  background:var(--color-text-primary);color:var(--color-background-primary);
+  border:none;border-radius:var(--r);font-size:.85rem;font-weight:500;
+  cursor:pointer;font-family:var(--font-sans);transition:opacity .15s;
+}
+.btn-post:hover{opacity:.85}
+.btn-post.loading{opacity:.6;pointer-events:none}
+.section-head{display:flex;align-items:baseline;gap:8px;margin-bottom:1rem}
+.section-head h2{font-size:1rem;font-weight:500}
+.count{font-size:.8rem;color:var(--muted)}
+.feed{display:flex;flex-direction:column;gap:.75rem}
+.card{
+  background:var(--bg);border:0.5px solid var(--border);
+  border-radius:var(--rl);padding:1rem 1.1rem .85rem;
+  animation:fadeIn .25s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.card-top{display:flex;align-items:center;gap:6px;margin-bottom:.5rem}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.author{font-size:.75rem;font-weight:500;color:var(--muted)}
+.date{font-size:.7rem;color:var(--border);margin-left:auto}
+.card h3{font-size:.95rem;font-weight:500;margin-bottom:.35rem;line-height:1.35}
+.card p{font-size:.85rem;color:var(--muted);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-foot{display:flex;justify-content:flex-end;margin-top:.75rem;border-top:0.5px solid var(--border);padding-top:.65rem}
+.btn-del{
+  display:inline-flex;align-items:center;gap:5px;
+  background:transparent;border:0.5px solid var(--border);
+  color:var(--muted);font-size:.78rem;padding:.35rem .8rem;
+  border-radius:var(--r);cursor:pointer;font-family:var(--font-sans);
+  transition:border-color .15s,color .15s,background .15s;
+}
+.btn-del:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.btn-del.gone{opacity:.4;pointer-events:none}
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+.empty i{font-size:36px;opacity:.3;display:block;margin-bottom:.5rem}
+.toast{
+  position:fixed;bottom:1.2rem;right:1.2rem;
+  padding:.6rem 1rem;border-radius:var(--r);font-size:.82rem;font-weight:500;
+  color:#fff;opacity:0;transform:translateY(6px);
+  transition:opacity .2s,transform .2s;pointer-events:none;z-index:99;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{background:#2d6a4f}
+.toast.err{background:var(--accent)}
+</style>
+
+<h2 class="sr-only">Blog cá nhân — đăng và xoá bài viết</h2>
+
+<div class="app">
+  <div class="topbar">
+    <span class="logo">Nhật<em>Ký</em></span>
+    <span class="badge">Blog cá nhân</span>
+  </div>
+
+  <div class="compose">
+    <div class="compose-title">
+      <i class="ti ti-edit" aria-hidden="true" style="font-size:16px;color:var(--accent)"></i>
+      Đăng bài mới
+    </div>
+    <div class="row2">
+      <div><label for="ttl">Tiêu đề</label><input id="ttl" placeholder="Nhập tiêu đề…" maxlength="120"/></div>
+      <div><label for="auth">Tác giả</label><input id="auth" placeholder="Tên bạn" maxlength="50"/></div>
+    </div>
+    <label for="cnt">Nội dung</label>
+    <textarea id="cnt" placeholder="Chia sẻ điều gì đó…"></textarea>
+    <div class="submit-row">
+      <button class="btn-post" id="postBtn" onclick="doPost()">
+        <i class="ti ti-send" aria-hidden="true"></i> Đăng bài
+      </button>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h2>Bài viết</h2>
+    <span class="count" id="cnt2">0 bài</span>
+  </div>
+  <div class="feed" id="feed"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+
+<script>
+let posts=[
+  {id:'1',title:'Chào mừng đến với blog của tôi',content:'Đây là bài viết đầu tiên. Hãy thoải mái chia sẻ suy nghĩ của bạn!',author:'Admin',createdAt:new Date(Date.now()-3600000).toISOString()},
+  {id:'2',title:'Hôm nay tôi học được gì?',content:'Tôi vừa khám phá ra Vercel Serverless Functions — cực kỳ tiện lợi để deploy backend mà không cần quản lý server.',author:'Minh',createdAt:new Date().toISOString()}
+];
+
+function fmt(iso){
+  const d=new Date(iso);
+  return d.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function render(){
+  const feed=document.getElementById('feed');
+  document.getElementById('cnt2').textContent=posts.length+' bài';
+  if(!posts.length){
+    feed.innerHTML=`<div class="empty"><i class="ti ti-file-off"></i><p>Chưa có bài viết nào. Hãy đăng bài đầu tiên!</p></div>`;
+    return;
+  }
+  feed.innerHTML=posts.map(p=>`
+    <div class="card" id="c${p.id}">
+      <div class="card-top">
+        <span class="dot"></span>
+        <span class="author">${esc(p.author)}</span>
+        <span class="date">${fmt(p.createdAt)}</span>
+      </div>
+      <h3>${esc(p.title)}</h3>
+      <p>${esc(p.content)}</p>
+      <div class="card-foot">
+        <button class="btn-del" onclick="doDelete('${p.id}',this)">
+          <i class="ti ti-trash" aria-hidden="true"></i> Xoá bài
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+type;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',2800);
+}
+
+function doPost(){
+  const t=document.getElementById('ttl').value.trim();
+  const c=document.getElementById('cnt').value.trim();
+  const a=document.getElementById('auth').value.trim()||'Ẩn danh';
+  const btn=document.getElementById('postBtn');
+  if(!t){toast('Vui lòng nhập tiêu đề!','err');document.getElementById('ttl').focus();return}
+  if(!c){toast('Vui lòng nhập nội dung!','err');document.getElementById('cnt').focus();return}
+  btn.classList.add('loading');btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> Đang đăng…';
+  setTimeout(()=>{
+    posts.unshift({id:Date.now().toString(),title:t,content:c,author:a,createdAt:new Date().toISOString()});
+    document.getElementById('ttl').value='';
+    document.getElementById('cnt').value='';
+    render();
+    toast('✓ Đăng bài thành công!');
+    btn.classList.remove('loading');btn.innerHTML='<i class="ti ti-send"></i> Đăng bài';
+  },600);
+}
+
+function doDelete(id,btn){
+  if(!confirm('Xoá bài này?'))return;
+  btn.classList.add('gone');btn.innerHTML='<i class="ti ti-loader"></i> Đang xoá…';
+  setTimeout(()=>{
+    const card=document.getElementById('c'+id);
+    card.style.transition='opacity .2s,transform .2s';
+    card.style.opacity='0';card.style.transform='translateX(8px)';
+    setTimeout(()=>{posts=posts.filter(p=>p.id!==id);render();},220);
+    toast('Đã xoá bài viết.');
+  },400);
+}
+
+const s=document.createElement('style');
+s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(s);
+render();
+</script>
